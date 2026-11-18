@@ -1,0 +1,14 @@
+# сборка
+bin/
+obj/
+publish/
+dist/
+*.user
+.vs/
+
+# двоичные ядра — скачиваются скриптом get-cores.ps1
+TunPilot/cores/
+
+# временное
+Setup/payload.zip
+translation-review.md

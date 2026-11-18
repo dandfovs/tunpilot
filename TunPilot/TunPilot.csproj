@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>TunPilot</RootNamespace>
+    <AssemblyName>TunPilot</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>TunPilot</Product>
+    <Company>TunPilot</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="TunPilot.Loc" Static="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ядра — отдельными файлами рядом с exe (не внутрь single-file: их запускают как процессы) -->
+    <None Include="cores\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+</Project>
