@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Общее ядро TunPilot: логика без интерфейса и без привязки к Windows
+       (подписки, группы, профили, конфиги sing-box/Xray, управление ядрами, импорт, обновления, перевод).
+       Оболочки под конкретную ОС (сейчас — TunPilot для Windows) ссылаются на этот проект. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TunPilot</RootNamespace>
+    <AssemblyName>TunPilot.Core</AssemblyName>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="TunPilot.Loc" Static="true" />
+    <!-- оболочки пользуются внутренними помощниками (самопроверки, словарь перевода) -->
+    <InternalsVisibleTo Include="TunPilot" />
+  </ItemGroup>
+
+</Project>

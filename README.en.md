@@ -68,7 +68,7 @@ powershell -ExecutionPolicy Bypass -File get-cores.ps1        # download sing-bo
 powershell -ExecutionPolicy Bypass -File build-installer.ps1  # build dist\TunPilot-Setup-<version>.exe
 ```
 
-For development, `dotnet build TunPilot` is enough. Core binaries are not stored in the repository; `get-cores.ps1` downloads them from the official releases.
+For development, `dotnet build TunPilot.slnx` is enough. Core binaries are not stored in the repository; `get-cores.ps1` downloads them from the official releases.
 
 ## How it works
 
@@ -78,6 +78,14 @@ For development, `dotnet build TunPilot` is enough. Core binaries are not stored
 - **"Bypass TUN" exceptions** are plain Windows routes through the physical gateway, so those connections don't depend on the VPN at all.
 
 Settings, subscriptions and logs are stored in `%LOCALAPPDATA%\TunPilot`.
+
+### Project layout
+
+| Folder | Contents |
+|---|---|
+| `TunPilot.Core` | Shared core with no UI and no Windows dependencies: subscriptions, groups, profiles, sing-box/Xray config generation, core management, import from other clients, updates, translations. The basis for future Linux and other ports. |
+| `TunPilot` | The Windows app: UI (WinForms), tray, WFP kill-switch, bypass-TUN routes, autostart. |
+| `Setup` | Installer and uninstaller (.NET Framework 4.8). |
 
 ## License
 

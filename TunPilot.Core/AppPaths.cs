@@ -17,9 +17,9 @@ static class AppPaths
     public static string Runtime => Ensure(Path.Combine(Data, "runtime"));
     public static string Logs => Ensure(Path.Combine(Data, "logs"));
 
-    public static string SingBoxExe => Path.Combine(Base, "cores", "sing-box", "sing-box.exe");
+    public static string SingBoxExe => Path.Combine(Base, "cores", "sing-box", Platform.Exe("sing-box"));
     public static string XrayDir => Path.Combine(Base, "cores", "xray");
-    public static string XrayExe => Path.Combine(XrayDir, "xray.exe");
+    public static string XrayExe => Path.Combine(XrayDir, Platform.Exe("xray"));
 
     static string Ensure(string p) { Directory.CreateDirectory(p); return p; }
 }

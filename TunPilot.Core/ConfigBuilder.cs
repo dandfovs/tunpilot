@@ -103,7 +103,7 @@ public static class ConfigBuilder
         {
             // Адреса самих VPN-серверов — только через локальный DNS. Иначе петля: Xray резолвит
             // сервер через системный DNS → запрос попадает в TUN → удалённый DNS через тот же Xray.
-            new JsonObject { ["process_name"] = Arr(["xray.exe", "TunPilot.exe"]), ["server"] = "local" },
+            new JsonObject { ["process_name"] = Arr([Platform.Exe("xray"), Platform.AppProcessName]), ["server"] = "local" },
         };
         var serverHosts = ServerHosts(servers);
         if (serverHosts.Count > 0)
@@ -114,7 +114,7 @@ public static class ConfigBuilder
         {
             new JsonObject { ["action"] = "sniff" },
             // Xray и сама программа ходят напрямую — иначе петля (их трафик снова попал бы в TUN).
-            new JsonObject { ["process_name"] = Arr(["xray.exe", "TunPilot.exe"]), ["outbound"] = "direct" },
+            new JsonObject { ["process_name"] = Arr([Platform.Exe("xray"), Platform.AppProcessName]), ["outbound"] = "direct" },
             new JsonObject { ["protocol"] = "dns", ["action"] = "hijack-dns" },
             new JsonObject { ["ip_is_private"] = true, ["outbound"] = "direct" },
             new JsonObject { ["rule_set"] = "user-proxy", ["outbound"] = "select" },

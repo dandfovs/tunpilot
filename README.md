@@ -68,7 +68,7 @@ powershell -ExecutionPolicy Bypass -File get-cores.ps1        # скачать s
 powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать dist\TunPilot-Setup-<версия>.exe
 ```
 
-Для разработки достаточно `dotnet build TunPilot`. Двоичные файлы ядер в репозиторий не входят, их скачивает `get-cores.ps1` из официальных выпусков.
+Для разработки достаточно `dotnet build TunPilot.slnx`. Двоичные файлы ядер в репозиторий не входят, их скачивает `get-cores.ps1` из официальных выпусков.
 
 ## Как это устроено
 
@@ -78,6 +78,14 @@ powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать d
 - **Исключения «мимо TUN»** — это обычные маршруты Windows через физический шлюз: такие соединения не зависят от VPN вообще.
 
 Настройки, подписки и логи хранятся в `%LOCALAPPDATA%\TunPilot`.
+
+### Структура проекта
+
+| Папка | Что внутри |
+|---|---|
+| `TunPilot.Core` | Общее ядро без интерфейса и без привязки к Windows: подписки, группы, профили, сборка конфигов sing-box/Xray, управление ядрами, импорт из других клиентов, обновления, перевод. Основа для будущих версий под Linux и другие системы. |
+| `TunPilot` | Приложение для Windows: интерфейс (WinForms), трей, kill-switch на WFP, маршруты мимо TUN, автозапуск. |
+| `Setup` | Установщик и программа удаления (.NET Framework 4.8). |
 
 ## Лицензия
 

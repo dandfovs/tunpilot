@@ -17,8 +17,9 @@ public sealed class TrafficMonitor : IDisposable
         public long ProxyUp, ProxyDown, DirectUp, DirectDown;   // байт/с
     }
 
-    readonly TrayApp _app;
-    readonly System.Windows.Forms.Timer _timer = new() { Interval = 1000 };
+    readonly IAppState _app;
+    readonly System.Threading.Timer _timer;
+    readonly SynchronizationContext? _ui;
     readonly Dictionary<string, (long Up, long Down)> _prev = new();
     bool _polling;
     int _tick;
@@ -32,11 +33,20 @@ public sealed class TrafficMonitor : IDisposable
     public Snapshot? Last { get; private set; }
     public event Action<Snapshot>? Updated;
 
-    public TrafficMonitor(TrayApp app)
+    /// <param name="app">Состояние приложения (ядро, серверы, группы).</param>
+    /// <remarks>
+    /// Создавать в UI-потоке: опрос и событие <see cref="Updated"/> выполняются в его контексте синхронизации,
+    /// так что подписчики могут сразу трогать интерфейс. Без контекста (консоль, тесты) — прямо в потоке таймера.
+    /// </remarks>
+    public TrafficMonitor(IAppState app)
     {
         _app = app;
-        _timer.Tick += async (_, _) => await PollAsync();
-        _timer.Start();
+        _ui = SynchronizationContext.Current;
+        _timer = new System.Threading.Timer(_ =>
+        {
+            if (_ui != null) _ui.Post(async _ => await PollAsync(), null);
+            else _ = PollAsync();
+        }, null, 1000, 1000);
     }
 
     public void ResetSession()

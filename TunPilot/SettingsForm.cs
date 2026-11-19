@@ -41,7 +41,7 @@ public sealed class SettingsForm : Form
     // интерфейс
     readonly ComboBox _theme = Combo(false, L("Тёмная"), L("Светлая"), L("Как в системе"));
     // названия языков — каждое на своём языке, чтобы его можно было найти при любом текущем
-    readonly ComboBox _language = Combo(false, L("Как в системе"), "Русский", "English");
+    readonly ComboBox _language = Combo(false, L("Как в системе"), "Русский" /*noloc*/, "English");
     // клавиши
     readonly TextBox _hotkey = new() { Width = 220, ReadOnly = true };
 
@@ -225,7 +225,7 @@ public sealed class SettingsForm : Form
     {
         var t = Page();
         Row(t, L("Тема"), _theme);
-        Row(t, Loc.En ? "Language" : "Язык / Language", _language);
+        Row(t, Loc.En ? "Language" : "Язык / Language" /*noloc*/, _language);
         Full(t, Hint(L("Смена языка перезапускает программу (VPN-подключение на пару секунд прервётся).")));
         return t;
     }

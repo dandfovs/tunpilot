@@ -13,12 +13,14 @@ public static class Warp
 {
     const string Api = "https://api.cloudflareclient.com/v0a2158/reg";
 
-    public static async Task<string> RegisterAsync(TrayApp app)
+    /// <param name="core">Ядро: если подключены, запрос идёт через выбранный сервер.</param>
+    /// <param name="selectedTag">Тег выбранного сервера.</param>
+    public static async Task<string> RegisterAsync(CoreManager core, string selectedTag)
     {
         var (priv, pub) = await GenerateKeyPairAsync();
 
         // Если подключены — идём через текущий сервер (API Cloudflare бывает заблокирован напрямую).
-        using var http = app.Core.ProxiedClient(app.SelectedTag) ?? new HttpClient();
+        using var http = core.ProxiedClient(selectedTag) ?? new HttpClient();
         http.Timeout = TimeSpan.FromSeconds(25);
         http.DefaultRequestHeaders.UserAgent.ParseAdd("okhttp/3.12.1");
         http.DefaultRequestHeaders.Add("CF-Client-Version", "a-6.30-3596");

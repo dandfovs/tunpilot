@@ -460,13 +460,17 @@ public sealed class CoreManager : IDisposable
     public void Dispose() { Stop(); _job.Dispose(); }
 }
 
-/// <summary>Job object с KILL_ON_JOB_CLOSE: дочерние процессы умирают вместе с нами.</summary>
+/// <summary>
+/// Job object с KILL_ON_JOB_CLOSE: дочерние процессы умирают вместе с нами (только Windows;
+/// на других ОС — заглушка, там ядра останавливает сама программа при выходе).
+/// </summary>
 sealed class ChildJob : IDisposable
 {
     readonly IntPtr _handle;
 
     public ChildJob()
     {
+        if (!OperatingSystem.IsWindows()) return;
         _handle = CreateJobObject(IntPtr.Zero, null);
         var info = new JOBOBJECT_EXTENDED_LIMIT_INFORMATION();
         info.BasicLimitInformation.LimitFlags = 0x2000; // JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
@@ -480,8 +484,8 @@ sealed class ChildJob : IDisposable
         finally { Marshal.FreeHGlobal(ptr); }
     }
 
-    public void Add(Process p) { try { AssignProcessToJobObject(_handle, p.Handle); } catch { } }
-    public void Dispose() => CloseHandle(_handle);
+    public void Add(Process p) { if (_handle == IntPtr.Zero) return; try { AssignProcessToJobObject(_handle, p.Handle); } catch { } }
+    public void Dispose() { if (_handle != IntPtr.Zero) CloseHandle(_handle); }
 
     [StructLayout(LayoutKind.Sequential)]
     struct JOBOBJECT_BASIC_LIMIT_INFORMATION

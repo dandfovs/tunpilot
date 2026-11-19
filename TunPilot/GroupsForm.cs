@@ -151,7 +151,7 @@ public sealed class GroupsForm : Form
         try
         {
             Cursor = Cursors.WaitCursor;
-            var link = await Warp.RegisterAsync(_app);
+            var link = await Warp.RegisterAsync(_app.Core, _app.SelectedTag);
             var n = await _app.AddLinksAsync(link);
             _app.Balloon(n > 0 ? L("WARP добавлен в группу ключей.") : L("WARP уже есть в списке."), ToolTipIcon.Info);
             Rebuild();

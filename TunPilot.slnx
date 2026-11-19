@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Setup/">
+    <Project Path="Setup/TunPilotSetup.csproj" />
+  </Folder>
+  <Project Path="TunPilot.Core/TunPilot.Core.csproj" />
+  <Project Path="TunPilot/TunPilot.csproj" />
+</Solution>

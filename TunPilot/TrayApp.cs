@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace TunPilot;
 
 /// <summary>Сердце программы: состояние, подключение, группы, профили, трей. Окна — только отображение.</summary>
-public sealed class TrayApp : ApplicationContext
+public sealed class TrayApp : ApplicationContext, IAppState
 {
     readonly NotifyIcon _tray;
     readonly ContextMenuStrip _menu = new();
@@ -33,6 +33,9 @@ public sealed class TrayApp : ApplicationContext
     internal GroupStore Groups => _groups;
     internal TrafficMonitor Monitor { get; }
     internal IReadOnlyList<ServerInfo> AllServers => _all;
+    CoreManager IAppState.Core => _core;
+    IReadOnlyList<ServerInfo> IAppState.AllServers => _all;
+    GroupStore IAppState.Groups => _groups;
     internal bool Busy => _busy;
     internal string RoutesInfo => _routesInfo;
     internal bool PendingSubUpdate => _pending;

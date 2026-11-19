@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TunPilot.Core\TunPilot.Core.csproj" />
     <Using Include="TunPilot.Loc" Static="true" />
   </ItemGroup>
 
