@@ -12,7 +12,7 @@
     <RootNamespace>TunPilot</RootNamespace>
     <AssemblyName>TunPilot</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Product>TunPilot</Product>
     <Company>TunPilot</Company>
   </PropertyGroup>
