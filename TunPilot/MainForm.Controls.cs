@@ -244,6 +244,76 @@ public sealed partial class MainForm
         }
     }
 
+    /// <summary>Вкладка «Сессия»: карточки «подпись — значение», длинные значения переносятся в своей колонке.</summary>
+    sealed class SessionView : Control
+    {
+        public sealed record Item(string Key, string Value, Color? Color = null);
+        public sealed record Card(string Title, List<Item> Items);
+        List<Card> _cards = [];
+        readonly Font _title = new("Segoe UI", 10f, FontStyle.Bold), _text = new("Segoe UI", 9.5f);
+        const int Pad = 14, Gap = 12;
+
+        public SessionView()
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
+        }
+
+        public void SetData(List<Card> cards) { _cards = cards; Invalidate(); }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.Clear(Theme.Bg);
+            if (_cards.Count == 0) return;
+            int cols = Width >= 860 ? 2 : 1;
+            int cardW = (Width - Pad * 2 - Gap * (cols - 1)) / cols;
+            var colY = new int[cols];
+            for (int c = 0; c < cols; c++) colY[c] = Pad;
+            const TextFormatFlags wrap = TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix | TextFormatFlags.Left;
+
+            foreach (var card in _cards)
+            {
+                // в колонку, где сейчас меньше всего занято
+                int col = 0;
+                for (int c = 1; c < cols; c++) if (colY[c] < colY[col]) col = c;
+                int x = Pad + col * (cardW + Gap), y = colY[col];
+                // колонка подписей — по самой длинной подписи в карточке (но не шире 45% карточки)
+                int keyW = 0;
+                foreach (var it in card.Items) keyW = Math.Max(keyW, TextRenderer.MeasureText(g, it.Key, _text).Width);
+                keyW = Math.Clamp(keyW + 18, 110, (int)(cardW * 0.45));
+                int valW = Math.Max(80, cardW - Pad * 2 - keyW);
+
+                // высота карточки по содержимому
+                int h = Pad + _title.Height + 10;
+                var rowH = new List<int>();
+                foreach (var it in card.Items)
+                {
+                    var sz = TextRenderer.MeasureText(g, it.Value.Length > 0 ? it.Value : "—", _text, new Size(valW, 0), wrap);
+                    var kz = TextRenderer.MeasureText(g, it.Key, _text, new Size(keyW - 10, 0), wrap);
+                    int rh = Math.Max(_text.Height, Math.Max(sz.Height, kz.Height)) + 6;
+                    rowH.Add(rh);
+                    h += rh;
+                }
+                h += Pad - 6;
+
+                using (var bg = new SolidBrush(Theme.Panel)) g.FillRectangle(bg, x, y, cardW, h);
+                using (var pen = new Pen(Theme.Grid)) g.DrawRectangle(pen, x, y, cardW - 1, h - 1);
+                TextRenderer.DrawText(g, card.Title, _title, new Point(x + Pad, y + Pad - 2), Theme.Text, TextFormatFlags.NoPrefix);
+
+                int ry = y + Pad + _title.Height + 10;
+                for (int i = 0; i < card.Items.Count; i++)
+                {
+                    var it = card.Items[i];
+                    TextRenderer.DrawText(g, it.Key, _text, new Rectangle(x + Pad, ry, keyW - 10, rowH[i]), Theme.Muted, wrap);
+                    TextRenderer.DrawText(g, it.Value.Length > 0 ? it.Value : "—", _text, new Rectangle(x + Pad + keyW, ry, valW, rowH[i]),
+                        it.Color ?? Theme.Text, wrap);
+                    ry += rowH[i];
+                }
+                colY[col] = y + h + Gap;
+            }
+        }
+    }
+
     /// <summary>Тонкая полоска расхода трафика подписки.</summary>
     sealed class ProgressLine : Control
     {

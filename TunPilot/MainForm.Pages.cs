@@ -113,6 +113,7 @@ public sealed partial class MainForm
     }
 
     internal void ShowServersPage() => ShowPage(_navServers);
+    internal void PreviewSession() { ShowPage(_navTraffic); SelectTab(_tabStats); }
     /// <summary>Для скриншотов с демо-данными: правдоподобные результаты тестов.</summary>
     internal void PreviewDemo()
     {

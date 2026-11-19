@@ -62,6 +62,7 @@ static class Program
             if (args.Contains("--chart")) f.PreviewChart();
             if (args.Contains("--demo")) f.PreviewDemo();
             if (args.Contains("--connected")) f.PreviewConnected();
+            if (args.Contains("--session")) f.PreviewSession();
             if (args.Contains("--settab")) f.ShowSettingsTab(args.SkipWhile(a => a != "--settab").Skip(1).Select(int.Parse).FirstOrDefault());
             if (args.SkipWhile(a => a != "--nav").Skip(1).Select(int.Parse).FirstOrDefault() is var nav and > 0) f.ShowPageIndex(nav);
             int page = args.SkipWhile(a => a != "--page").Skip(1).Select(int.Parse).FirstOrDefault();

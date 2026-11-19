@@ -54,7 +54,7 @@ public sealed partial class MainForm : Form
         Font = new Font("Consolas", 9.5f), BorderStyle = BorderStyle.None,
     };
     readonly ToolStripComboBox _logPick = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 110 };
-    readonly Label _stats = new() { Dock = DockStyle.Fill, Font = new Font("Consolas", 10.5f), Padding = new Padding(14) };
+    readonly SessionView _stats = new() { Dock = DockStyle.Fill };
     Control _connsPage = null!, _logsPage = null!;
     List<Row> _rows = [];
     int _tick;
@@ -487,7 +487,7 @@ public sealed partial class MainForm : Form
         _logsPage.Controls.Add(_logBox);
         _logsPage.Controls.Add(logBar);
 
-        _stats.BackColor = Theme.Panel; _stats.ForeColor = Theme.Text;
+
     }
 
     void BuildStatus()
@@ -926,25 +926,45 @@ public sealed partial class MainForm : Form
         var m = _app.Monitor;
         bool on = _app.Core.Running;
         var p = Profiles.Current;
-        var sb = new StringBuilder();
-        sb.AppendLine(Lf($"Состояние          {(on ? L("подключено") : L("отключено"))}"));
-        if (on) sb.AppendLine(Lf($"Время работы       {DateTime.Now - _app.ConnectedAt:hh\\:mm\\:ss}"));
-        sb.AppendLine(Lf($"Сервер             {_app.SelectedDisplay}"));
-        sb.AppendLine();
-        sb.AppendLine(Lf($"Через прокси       {Fmt(m.ProxyUp)} ↑   {Fmt(m.ProxyDown)} ↓"));
-        sb.AppendLine(Lf($"Напрямую           {Fmt(m.DirectUp)} ↑   {Fmt(m.DirectDown)} ↓"));
-        sb.AppendLine(Lf($"Активных соединений {m.Last?.Conns.Count ?? 0}"));
-        sb.AppendLine();
-        sb.AppendLine(Lf($"Профиль            {p.Name}"));
-        sb.AppendLine(Lf($"Мимо TUN           {(on && _app.RoutesInfo.Length > 0 ? _app.RoutesInfo : "—")}"));
-        sb.AppendLine(Lf($"Всё остальное      {(p.DefaultOutbound == "direct" ? L("напрямую") : L("через VPN"))}"));
-        sb.AppendLine(Lf($"Geo напрямую       {(p.GeoDirect.Count > 0 ? string.Join(", ", p.GeoDirect) : "—")}"));
-        if (s.LocalProxyEnabled) sb.AppendLine(Lf($"Локальный прокси   127.0.0.1:{s.LocalProxyPort}"));
-        sb.AppendLine();
-        sb.AppendLine(Lf($"Групп / серверов   {_app.Groups.Groups.Count} / {_app.AllServers.Count}"));
-        _stats.Text = sb.ToString();
-    }
+        static string Sets(List<string> l) => l.Count > 0 ? string.Join(", ", l) : "";
 
+        var conn = new List<SessionView.Item>
+        {
+            new(L("Состояние"), on ? L("подключено") : L("отключено"), on ? Theme.Accent : Theme.Muted),
+        };
+        if (on) conn.Add(new(L("Время работы"), (DateTime.Now - _app.ConnectedAt).ToString(@"hh\:mm\:ss")));
+        conn.Add(new(L("Сервер"), _app.SelectedDisplay));
+        conn.Add(new(L("Kill-switch"), s.KillSwitch ? L("включён") : L("выключен"), s.KillSwitch ? Theme.Accent : null));
+
+        var traffic = new List<SessionView.Item>
+        {
+            new(L("Через VPN"), $"↑ {Fmt(m.ProxyUp)}    ↓ {Fmt(m.ProxyDown)}"),
+            new(L("Напрямую"), $"↑ {Fmt(m.DirectUp)}    ↓ {Fmt(m.DirectDown)}"),
+            new(L("Активных соединений"), (m.Last?.Conns.Count ?? 0).ToString()),
+        };
+
+        var routes = new List<SessionView.Item>
+        {
+            new(L("Профиль"), p.Name),
+            new(L("Всё остальное"), p.DefaultOutbound == "direct" ? L("напрямую") : L("через VPN")),
+            new(L("Мимо TUN"), on ? _app.RoutesInfo : ""),
+            new(L("Наборы напрямую"), Sets(p.GeoDirect), Theme.Direct),
+            new(L("Наборы через VPN"), Sets(p.GeoProxy), Theme.Accent),
+        };
+
+        var other = new List<SessionView.Item>
+        {
+            new(L("Группы / серверы"), $"{_app.Groups.Groups.Count} / {_app.AllServers.Count}"),
+            new(L("Локальный прокси"), s.LocalProxyEnabled ? $"127.0.0.1:{s.LocalProxyPort}" : L("выключен")),
+        };
+
+        _stats.SetData([
+            new(L("Подключение"), conn),
+            new(L("Трафик за сессию"), traffic),
+            new(L("Маршруты"), routes),
+            new(L("Прочее"), other),
+        ]);
+    }
     // ───────────────────────── утилиты ─────────────────────────
 
     internal static string Fmt(long b) => b switch
