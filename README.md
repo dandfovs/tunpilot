@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/dandfovs/tunpilot/releases/latest"><img src="https://img.shields.io/github/v/release/dandfovs/tunpilot?label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F&color=57c778" alt="Версия"></a>
-  <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4" alt="Windows 10 | 11">
+  <img src="https://img.shields.io/badge/Windows-10%20%7C%2011%20%C2%B7%20x64%20%7C%20ARM64-0078d4" alt="Windows 10 | 11 · x64 | ARM64">
   <a href="LICENSE"><img src="https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-GPL--3.0-blue" alt="GPL-3.0"></a>
 </p>
 
@@ -48,7 +48,9 @@
 
 ## Установка
 
-1. Скачайте `TunPilot-Setup-*.exe` со страницы [последнего выпуска](https://github.com/dandfovs/tunpilot/releases/latest).
+1. Скачайте установщик со страницы [последнего выпуска](https://github.com/dandfovs/tunpilot/releases/latest):
+   - `TunPilot-Setup-<версия>.exe` — для обычных компьютеров (x64);
+   - `TunPilot-Setup-<версия>-arm64.exe` — для компьютеров на ARM (Snapdragon и т. п.). Если перепутаете, установщик подскажет.
 2. Запустите установщик. Нужны права администратора, без них TUN-режим не работает.
 3. В TunPilot откройте **Серверы → Группы → Новая подписка** и вставьте ссылку от вашего VPN-провайдера. Либо скопируйте ключ `vless://…` и нажмите Ctrl+V в главном окне.
 4. Нажмите большую кнопку на главном экране.
@@ -65,7 +67,7 @@
 git clone https://github.com/dandfovs/tunpilot.git
 cd tunpilot
 powershell -ExecutionPolicy Bypass -File get-cores.ps1        # скачать sing-box и Xray
-powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать dist\TunPilot-Setup-<версия>.exe
+powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать установщики x64 и ARM64 в dist\
 ```
 
 Для разработки достаточно `dotnet build TunPilot.slnx`. Двоичные файлы ядер в репозиторий не входят, их скачивает `get-cores.ps1` из официальных выпусков.

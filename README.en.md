@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/dandfovs/tunpilot/releases/latest"><img src="https://img.shields.io/github/v/release/dandfovs/tunpilot?color=57c778" alt="Release"></a>
-  <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4" alt="Windows 10 | 11">
+  <img src="https://img.shields.io/badge/Windows-10%20%7C%2011%20%C2%B7%20x64%20%7C%20ARM64-0078d4" alt="Windows 10 | 11 · x64 | ARM64">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="GPL-3.0"></a>
 </p>
 
@@ -48,7 +48,9 @@ In TunPilot, site lists, routing profiles, ready-made geoip/geosite sets, "bypas
 
 ## Installation
 
-1. Download `TunPilot-Setup-*.exe` from the [latest release](https://github.com/dandfovs/tunpilot/releases/latest).
+1. Download the installer from the [latest release](https://github.com/dandfovs/tunpilot/releases/latest):
+   - `TunPilot-Setup-<version>.exe` — for regular PCs (x64);
+   - `TunPilot-Setup-<version>-arm64.exe` — for ARM computers (Snapdragon, etc.). If you pick the wrong one, the installer will tell you.
 2. Run the installer. Administrator rights are required, since TUN mode doesn't work without them.
 3. In TunPilot open **Servers → Groups → New subscription** and paste the link from your VPN provider. Or copy a `vless://…` key and press Ctrl+V in the main window.
 4. Click the big button on the home screen.
@@ -65,7 +67,7 @@ Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 git clone https://github.com/dandfovs/tunpilot.git
 cd tunpilot
 powershell -ExecutionPolicy Bypass -File get-cores.ps1        # download sing-box and Xray
-powershell -ExecutionPolicy Bypass -File build-installer.ps1  # build dist\TunPilot-Setup-<version>.exe
+powershell -ExecutionPolicy Bypass -File build-installer.ps1  # build x64 and ARM64 installers into dist\
 ```
 
 For development, `dotnet build TunPilot.slnx` is enough. Core binaries are not stored in the repository; `get-cores.ps1` downloads them from the official releases.

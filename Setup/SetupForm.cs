@@ -33,7 +33,7 @@ namespace TunPilotSetup
         public SetupForm(bool uninstall, string uninstallDir)
         {
             _uninstall = uninstall; _uninstallDir = uninstallDir;
-            Text = uninstall ? T("Удаление TunPilot", "Uninstall TunPilot") : T("Установка TunPilot", "Install TunPilot");
+            Text = uninstall ? T("Удаление TunPilot", "Uninstall TunPilot") : T("Установка TunPilot", "Install TunPilot") + (Installer.PayloadArch == "arm64" ? " (ARM64)" : "");
             FormBorderStyle = FormBorderStyle.FixedSingle; MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = Bg; ForeColor = Text_;
@@ -148,6 +148,24 @@ namespace TunPilotSetup
                 var msg = _uninstall ? T("TunPilot сейчас запущен. Закрыть его и продолжить удаление?\nVPN-подключение прервётся.", "TunPilot is running. Close it and continue uninstalling?\nThe VPN connection will drop.")
                                      : T("TunPilot сейчас запущен. Закрыть его для обновления?\nVPN-подключение прервётся на время установки.", "TunPilot is running. Close it to update?\nThe VPN connection will drop during installation.");
                 if (MessageBox.Show(this, msg, Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            }
+
+            // установщик не под тот процессор
+            if (!_uninstall)
+            {
+                bool osArm = Installer.OsIsArm64, payloadArm = Installer.PayloadArch == "arm64";
+                if (payloadArm && !osArm)
+                {
+                    MessageBox.Show(this, T("Это установщик для компьютеров на ARM (Snapdragon и т. п.), а у вас обычный процессор x64.\nСкачайте TunPilot-Setup-<версия>.exe без «arm64» в названии.",
+                                            "This installer is for ARM computers (Snapdragon etc.), but this PC has a regular x64 processor.\nDownload TunPilot-Setup-<version>.exe without “arm64” in the name."),
+                        Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (!payloadArm && osArm &&
+                    MessageBox.Show(this, T("У вас компьютер на ARM (Snapdragon и т. п.). Для него есть отдельная версия — TunPilot-Setup-<версия>-arm64.exe: она работает быстрее и надёжнее.\n\nВсё равно установить обычную версию (x64, через эмуляцию)?",
+                                            "This is an ARM computer (Snapdragon etc.). There is a dedicated build for it — TunPilot-Setup-<version>-arm64.exe — which is faster and more reliable.\n\nInstall the regular x64 version (emulated) anyway?"),
+                        Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                    return;
             }
 
             // защита от случайного отката на старую версию поверх новой

@@ -23,6 +23,7 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <EmbeddedResource Include="payload.zip" LogicalName="payload.zip" Condition="Exists('payload.zip')" />
+    <EmbeddedResource Include="payload-arch.txt" LogicalName="payload-arch.txt" Condition="Exists('payload-arch.txt')" />
     <EmbeddedResource Include="..\TunPilot\app.ico" LogicalName="app.ico" />
   </ItemGroup>
 

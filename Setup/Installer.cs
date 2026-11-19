@@ -54,6 +54,42 @@ namespace TunPilotSetup
 
         public static string DefaultDir => ExistingDir ?? Path.Combine(ProgramFiles, AppName);
 
+        /// <summary>Под какой процессор собрана программа внутри установщика: "x64" или "arm64".</summary>
+        public static string PayloadArch
+        {
+            get
+            {
+                try
+                {
+                    using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("payload-arch.txt"))
+                        if (s != null) using (var r = new StreamReader(s)) return r.ReadToEnd().Trim().ToLowerInvariant();
+                }
+                catch { }
+                return "x64";
+            }
+        }
+
+        /// <summary>
+        /// Компьютер на ARM64 (Snapdragon и т. п.). Через IsWow64Process2 — он отвечает правду даже из эмуляции x64
+        /// (обычные проверки в эмуляции говорят «x64»).
+        /// </summary>
+        public static bool OsIsArm64
+        {
+            get
+            {
+                try
+                {
+                    ushort process, native;
+                    if (IsWow64Process2(Process.GetCurrentProcess().Handle, out process, out native)) return native == 0xAA64;   // IMAGE_FILE_MACHINE_ARM64
+                }
+                catch { }   // Windows старше 10 1709 — ARM64 там не бывает
+                return System.Runtime.InteropServices.RuntimeInformation.OSArchitecture == System.Runtime.InteropServices.Architecture.Arm64;
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool IsWow64Process2(IntPtr process, out ushort processMachine, out ushort nativeMachine);
+
         /// <summary>Сравнение с установленной версией: &gt;0 — этот установщик новее, 0 — та же, &lt;0 — старее; null — не установлено.</summary>
         public static int? CompareWithInstalled()
         {

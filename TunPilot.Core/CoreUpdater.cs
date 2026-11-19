@@ -13,12 +13,15 @@ public static class CoreUpdater
 {
     public sealed record Core(string Name, string Repo, string Dir, string Exe, Func<string, string, bool> IsAsset);
 
+    /// <summary>Программа собрана под ARM64 (Windows на Snapdragon) — тогда и ядра нужны ARM64.</summary>
+    static bool Arm64 => System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64;
+
     public static readonly Core[] Cores =
     [
         new("sing-box", "SagerNet/sing-box", Path.GetDirectoryName(AppPaths.SingBoxExe)!, AppPaths.SingBoxExe,
-            (name, ver) => name == $"sing-box-{ver}-windows-amd64.zip"),
+            (name, ver) => name == (Arm64 ? $"sing-box-{ver}-windows-arm64.zip" : $"sing-box-{ver}-windows-amd64.zip")),
         new("Xray", "XTLS/Xray-core", AppPaths.XrayDir, AppPaths.XrayExe,
-            (name, _) => name == "Xray-windows-64.zip"),
+            (name, _) => name == (Arm64 ? "Xray-windows-arm64-v8a.zip" : "Xray-windows-64.zip")),
     ];
 
     /// <summary>Что найдено на GitHub для одного ядра.</summary>
