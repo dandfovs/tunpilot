@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<!-- Разрешает активному пользователю за компьютером запускать помощник TunPilot (kill-switch, маршруты мимо TUN)
+     без ввода пароля — как NetworkManager. Удалённые и неактивные сессии спросят пароль администратора. -->
+<policyconfig>
+  <vendor>TunPilot</vendor>
+  <vendor_url>https://github.com/dandfovs/tunpilot</vendor_url>
+  <action id="io.github.dandfovs.tunpilot.helper">
+    <description>Manage TunPilot kill-switch and bypass routes</description>
+    <description xml:lang="ru">Управление kill-switch и маршрутами TunPilot</description>
+    <message>TunPilot needs permission to change firewall and routing rules</message>
+    <message xml:lang="ru">TunPilot нужно разрешение на изменение правил сети</message>
+    <icon_name>tunpilot</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/opt/tunpilot/tunpilot-helper</annotate>
+  </action>
+</policyconfig>

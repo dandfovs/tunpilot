@@ -3,5 +3,6 @@
     <Project Path="Setup/TunPilotSetup.csproj" />
   </Folder>
   <Project Path="TunPilot.Core/TunPilot.Core.csproj" />
+  <Project Path="TunPilot.Linux/TunPilot.Linux.csproj" />
   <Project Path="TunPilot/TunPilot.csproj" />
 </Solution>

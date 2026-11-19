@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- TunPilot для Linux: интерфейс на Avalonia поверх общего ядра TunPilot.Core. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TunPilot.LinuxApp</RootNamespace>
+    <AssemblyName>TunPilot</AssemblyName>
+    <Version>1.0.1</Version>
+    <Product>TunPilot</Product>
+    <ApplicationIcon>..\TunPilot\app.ico</ApplicationIcon>
+    <AvaloniaVersion>11.3.23</AvaloniaVersion>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <!-- без зависимости от libicu: на разных дистрибутивах разные версии -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+    <ProjectReference Include="..\TunPilot.Core\TunPilot.Core.csproj" />
+    <Using Include="TunPilot.Loc" Static="true" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+</Project>

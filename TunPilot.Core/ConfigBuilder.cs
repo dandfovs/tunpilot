@@ -6,6 +6,8 @@ namespace TunPilot;
 public static class ConfigBuilder
 {
     public const string TunName = "TunPilot";
+    /// <summary>fwmark соединений sing-box на Linux (0x2023), см. packaging/tunpilot-helper.</summary>
+    public const int LinuxMark = 0x2023;
     static JsonArray Arr(IEnumerable<string> items) => new(items.Select(i => (JsonNode)i!).ToArray());
 
     // ───────────────────────────── sing-box ─────────────────────────────
@@ -144,6 +146,17 @@ public static class ConfigBuilder
                 ["type"] = "mixed", ["tag"] = "mixed-in", ["listen"] = "127.0.0.1", ["listen_port"] = s.LocalProxyPort,
             });
 
+        var route = new JsonObject
+        {
+            ["auto_detect_interface"] = true,
+            ["default_domain_resolver"] = "local",
+            ["rule_set"] = ruleSets,
+            ["rules"] = routeRules,
+            ["final"] = final,
+        };
+        // Linux: метка на всех соединениях sing-box — kill-switch (nftables) пропускает только их и трафик в TUN.
+        if (OperatingSystem.IsLinux()) route["default_mark"] = LinuxMark;
+
         return new JsonObject
         {
             ["log"] = new JsonObject { ["level"] = s.LogLevelSingBox, ["timestamp"] = true },
@@ -160,14 +173,7 @@ public static class ConfigBuilder
             },
             ["inbounds"] = inbounds,
             ["outbounds"] = outbounds,
-            ["route"] = new JsonObject
-            {
-                ["auto_detect_interface"] = true,
-                ["default_domain_resolver"] = "local",
-                ["rule_set"] = ruleSets,
-                ["rules"] = routeRules,
-                ["final"] = final,
-            },
+            ["route"] = route,
             ["experimental"] = new JsonObject
             {
                 // Clash API нужен, чтобы переключать сервер в selector БЕЗ перезапуска ядра.

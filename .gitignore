@@ -9,6 +9,7 @@ dist/
 # двоичные ядра — скачиваются скриптом get-cores.ps1
 TunPilot/cores/
 TunPilot/cores-arm64/
+TunPilot.Linux/cores-*/
 
 # временное
 Setup/payload.zip

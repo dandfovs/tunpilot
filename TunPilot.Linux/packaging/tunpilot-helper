@@ -1,0 +1,86 @@
+#!/bin/bash
+# TunPilot privileged helper (runs as root via pkexec / polkit).
+# Only a fixed set of network operations, all inputs validated — nothing else can be run through it.
+#
+#   tunpilot-helper ks-enable  <cidr-list-file>   kill-switch on (nftables), bypass CIDRs allowed; survives reboot
+#   tunpilot-helper ks-disable                     kill-switch off
+#   tunpilot-helper ks-restore                     at boot (tunpilot-killswitch.service): re-apply if it was on
+#   tunpilot-helper ks-status                      prints "active" or "inactive"
+#   tunpilot-helper bypass-apply <cidr-list-file>  "bypass TUN" routes (ip rule, priority 8990)
+#   tunpilot-helper bypass-clear                   remove "bypass TUN" routes
+set -u
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+TABLE="tunpilot_ks"
+TUN_IF="TunPilot"
+MARK="0x2023"          # sing-box route.default_mark (Xray goes through TUN, sing-box redials it)
+RULE_PRIO=8990          # before sing-box auto_route rules (9000+)
+STATE_DIR=/var/lib/tunpilot
+STATE="$STATE_DIR/killswitch.list"   # exists = kill-switch is on (the app reads it without root)
+
+die() { echo "tunpilot-helper: $*" >&2; exit 1; }
+
+# read CIDRs from a file, keep only valid IPv4 networks (no shell metacharacters can get through)
+read_cidrs() {
+    local f="$1"
+    [ -f "$f" ] || die "no such file: $f"
+    grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$' "$f" | head -n 5000
+}
+
+apply_table() {
+    local cidrs="$1" elems=""
+    [ -n "$cidrs" ] && elems="elements = { $(echo "$cidrs" | paste -sd, -) }"
+    command -v nft >/dev/null || die "nftables (nft) is not installed"
+    # one transaction: the old table is replaced atomically, no unprotected gap
+    nft -f - <<EOF || die "nft failed"
+table inet $TABLE
+delete table inet $TABLE
+table inet $TABLE {
+    set bypass4 { type ipv4_addr; flags interval; auto-merge; $elems }
+    chain output {
+        type filter hook output priority 0; policy accept;
+        oifname "lo" accept
+        oifname "$TUN_IF" accept
+        meta mark $MARK accept
+        ip daddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16, 100.64.0.0/10, 224.0.0.0/4, 255.255.255.255 } accept
+        ip6 daddr { ::1, fe80::/10, fc00::/7, ff00::/8 } accept
+        ip daddr @bypass4 accept
+        counter reject
+    }
+}
+EOF
+}
+
+ks_enable() {
+    local cidrs
+    cidrs=$(read_cidrs "$1")
+    apply_table "$cidrs"
+    mkdir -p "$STATE_DIR"
+    printf '%s\n' "$cidrs" > "$STATE.tmp" && chmod 644 "$STATE.tmp" && mv -f "$STATE.tmp" "$STATE"
+}
+
+ks_disable() { rm -f "$STATE"; nft delete table inet "$TABLE" 2>/dev/null; true; }
+
+ks_restore() { [ -f "$STATE" ] && apply_table "$(read_cidrs "$STATE")"; true; }
+
+ks_status() { nft list table inet "$TABLE" >/dev/null 2>&1 && echo active || echo inactive; }
+
+bypass_clear() { while ip rule del priority "$RULE_PRIO" 2>/dev/null; do :; done; true; }
+
+bypass_apply() {
+    local cidrs
+    cidrs=$(read_cidrs "$1")
+    bypass_clear
+    local n=0
+    for c in $cidrs; do ip rule add to "$c" lookup main priority "$RULE_PRIO" && n=$((n + 1)); done
+    echo "$n"
+}
+
+case "${1:-}" in
+    ks-enable)    ks_enable "${2:?list file}" ;;
+    ks-disable)   ks_disable ;;
+    ks-restore)   ks_restore ;;
+    ks-status)    ks_status ;;
+    bypass-apply) bypass_apply "${2:?list file}" ;;
+    bypass-clear) bypass_clear ;;
+    *) die "usage: ks-enable FILE | ks-disable | ks-restore | ks-status | bypass-apply FILE | bypass-clear" ;;
+esac

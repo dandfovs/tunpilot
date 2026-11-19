@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=TunPilot
+GenericName=VPN client
+GenericName[ru]=VPN-клиент
+Comment=VPN client with TUN mode (sing-box + Xray)
+Comment[ru]=VPN-клиент с TUN-режимом (sing-box + Xray)
+Exec=/opt/tunpilot/TunPilot
+Icon=tunpilot
+Terminal=false
+Categories=Network;
+Keywords=vpn;proxy;vless;hysteria;xray;sing-box;
+StartupWMClass=TunPilot

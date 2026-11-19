@@ -503,5 +503,18 @@ static partial class Strings
         ["Настройки и логи"] = "Settings and logs",
         ["TunPilot — свободная программа с открытым исходным кодом. Её можно использовать, изучать, менять и распространять на условиях лицензии GPL-3.0."] = "TunPilot is free and open-source software. You can use, study, change and share it under the terms of the GPL-3.0 license.",
         ["Смена языка перезапускает программу (VPN-подключение на пару секунд прервётся)."] = "Changing the language restarts the app (the VPN connection drops for a couple of seconds).",
-        ["Перезапустить программу сейчас, чтобы сменить язык?"] = "Restart the app now to change the language?",    };
+        ["Перезапустить программу сейчас, чтобы сменить язык?"] = "Restart the app now to change the language?",
+
+        // ── Linux ──
+        ["\n\nСнять вручную: sudo /opt/tunpilot/tunpilot-helper ks-disable"] = "\n\nTo remove it manually: sudo /opt/tunpilot/tunpilot-helper ks-disable",
+        ["Да"] = "Yes",
+        ["Нет"] = "No",
+        ["Нет ответа от tunpilot-helper (pkexec ждёт подтверждения администратора)."] = "No response from tunpilot-helper (pkexec is waiting for administrator confirmation).",
+        ["Ничего не найдено"] = "Nothing found",
+        ["Ядра обновляются вместе с пакетом TunPilot (apt / dnf)."] = "The cores are updated together with the TunPilot package (apt / dnf).",
+        ["Запускать вместе с системой"] = "Start with the system",
+        ["При запуске вместе с системой — в трей, без окна"] = "When started with the system — to the tray, no window",
+        ["Перезапустить программу сейчас, чтобы сменить язык или тему?"] = "Restart the app now to change the language or theme?",
+        ["VPN-клиент для Linux с TUN-режимом. Маршруты, исключения и серверы меняются без перезапуска TUN — подключение не рвётся, пока вы, например, играете."] = "A VPN client for Linux with TUN mode. Routes, exceptions and servers change without restarting TUN — the connection doesn't drop while you are, say, gaming.",
+    };
 }

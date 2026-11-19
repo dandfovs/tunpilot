@@ -7,6 +7,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Debug — без запроса прав администратора (UAC): для скриншотов и самопроверок при разработке. VPN в ней не подключится. -->
+    <ApplicationManifest Condition="'$(Configuration)' == 'Debug'">app.dev.manifest</ApplicationManifest>
     <RootNamespace>TunPilot</RootNamespace>
     <AssemblyName>TunPilot</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>

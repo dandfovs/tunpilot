@@ -1,0 +1,14 @@
+[Unit]
+Description=TunPilot kill-switch (restore after reboot if it was on)
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/tunpilot/tunpilot-helper ks-restore
+
+[Install]
+WantedBy=multi-user.target

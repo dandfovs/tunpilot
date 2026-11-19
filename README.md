@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://github.com/dandfovs/tunpilot/releases/latest"><img src="https://img.shields.io/github/v/release/dandfovs/tunpilot?label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F&color=57c778" alt="Версия"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011%20%C2%B7%20x64%20%7C%20ARM64-0078d4" alt="Windows 10 | 11 · x64 | ARM64">
+  <img src="https://img.shields.io/badge/Linux-deb%20%7C%20rpm%20%C2%B7%20x64%20%7C%20ARM64-e95420" alt="Linux deb | rpm · x64 | ARM64">
   <a href="LICENSE"><img src="https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-GPL--3.0-blue" alt="GPL-3.0"></a>
 </p>
 
@@ -36,7 +37,7 @@
 - **Маршруты без перезапуска:** что идёт напрямую, что через VPN, что мимо TUN.
 - **Игры:** Dota 2 и Steam можно пустить мимо VPN, будет ниже пинг.
 - **Импорт маршрутизации** из Throne/NekoBox, Happ, v2rayN, v2RayTun и других клиентов на Xray, Hiddify/sing-box, Clash/Mihomo.
-- **Kill-switch** на Windows Filtering Platform: интернет только через VPN, блокировка переживает падение программы и перезагрузку.
+- **Kill-switch** (Windows Filtering Platform на Windows, nftables на Linux): интернет только через VPN, блокировка переживает падение программы и перезагрузку.
 - **Тесты задержки и скорости**, «Авто»-выбор самого быстрого сервера, график скорости, статистика трафика за 24 часа, 7 и 30 дней.
 - **Cloudflare WARP** в один клик, локальный HTTP/SOCKS5-прокси, обновление ядер из самой программы.
 - **Тёмная и светлая темы**, русский и английский интерфейс, горячие клавиши, резервная копия настроек.
@@ -47,6 +48,8 @@
 </p>
 
 ## Установка
+
+### Windows
 
 1. Скачайте установщик со страницы [последнего выпуска](https://github.com/dandfovs/tunpilot/releases/latest):
    - `TunPilot-Setup-<версия>.exe` — для обычных компьютеров (x64);
@@ -59,6 +62,23 @@
 
 > **Windows SmartScreen** может предупредить, что программа неизвестна: установщик не подписан платным сертификатом. Нажмите «Подробнее» → «Выполнить в любом случае». Исходный код открыт, и вы можете собрать программу сами.
 
+### Linux
+
+Пакеты лежат там же, на странице [последнего выпуска](https://github.com/dandfovs/tunpilot/releases/latest). Для компьютеров на ARM выбирайте файлы с `arm64` / `aarch64`.
+
+```bash
+# Ubuntu, Debian, Linux Mint и др.
+sudo apt install ./tunpilot_<версия>_amd64.deb
+# Fedora, RHEL, openSUSE и др.
+sudo dnf install ./tunpilot-<версия>-1.x86_64.rpm
+# остальные: архив tar.gz
+tar xzf tunpilot-<версия>-linux-x64.tar.gz && sudo tunpilot-<версия>-linux-x64/install.sh
+```
+
+TunPilot появится в меню приложений. Программа работает от обычного пользователя: права на TUN выдаются только ядру sing-box (`setcap`), а kill-switch и маршруты мимо TUN меняет маленький помощник через polkit. Нужны `nftables` и `iproute2`, пакет поставит их сам. Иконка в трее есть в KDE, Xfce, Cinnamon и др.; в GNOME нужно расширение AppIndicator, без него программа работает окном.
+
+Снять kill-switch вручную: `sudo /opt/tunpilot/tunpilot-helper ks-disable`. При удалении пакета блокировка снимается сама.
+
 ## Сборка из исходников
 
 Нужен [.NET 10 SDK](https://dotnet.microsoft.com/download).
@@ -70,6 +90,8 @@ powershell -ExecutionPolicy Bypass -File get-cores.ps1        # скачать s
 powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать установщики x64 и ARM64 в dist\
 ```
 
+Пакеты для Linux собирает `build-linux.ps1` (через WSL: .deb и .tar.gz в Ubuntu, .rpm в Fedora) или `TunPilot.Linux/packaging/build-packages.sh` прямо в Linux.
+
 Для разработки достаточно `dotnet build TunPilot.slnx`. Двоичные файлы ядер в репозиторий не входят, их скачивает `get-cores.ps1` из официальных выпусков.
 
 ## Как это устроено
@@ -77,16 +99,17 @@ powershell -ExecutionPolicy Bypass -File build-installer.ps1  # собрать �
 - **sing-box** поднимает TUN-адаптер и маршрутизирует трафик. Пользовательские списки и наборы geoip/geosite подключены как локальные rule-set, которые sing-box перечитывает сам при изменении файла. Поэтому правила меняются без перезапуска.
 - **Xray** запускается рядом для серверов, которые sing-box не умеет (XHTTP, полные конфиги провайдера). sing-box передаёт ему трафик через локальные SOCKS-порты.
 - **Сервер** переключается через Clash API sing-box, тоже без перезапуска.
-- **Исключения «мимо TUN»** — это обычные маршруты Windows через физический шлюз: такие соединения не зависят от VPN вообще.
+- **Исключения «мимо TUN»** — это обычные маршруты Windows через физический шлюз (на Linux — правила `ip rule` раньше правил sing-box): такие соединения не зависят от VPN вообще.
 
-Настройки, подписки и логи хранятся в `%LOCALAPPDATA%\TunPilot`.
+Настройки, подписки и логи хранятся в `%LOCALAPPDATA%\TunPilot` (на Linux — `~/.local/share/TunPilot`).
 
 ### Структура проекта
 
 | Папка | Что внутри |
 |---|---|
-| `TunPilot.Core` | Общее ядро без интерфейса и без привязки к Windows: подписки, группы, профили, сборка конфигов sing-box/Xray, управление ядрами, импорт из других клиентов, обновления, перевод. Основа для будущих версий под Linux и другие системы. |
+| `TunPilot.Core` | Общее ядро без интерфейса и без привязки к Windows: подписки, группы, профили, сборка конфигов sing-box/Xray, управление ядрами, импорт из других клиентов, обновления, перевод. Общее для Windows и Linux. |
 | `TunPilot` | Приложение для Windows: интерфейс (WinForms), трей, kill-switch на WFP, маршруты мимо TUN, автозапуск. |
+| `TunPilot.Linux` | Приложение для Linux: интерфейс (Avalonia), трей, kill-switch на nftables, маршруты мимо TUN, автозапуск XDG; в `packaging` — помощник, политика polkit и сборка пакетов. |
 | `Setup` | Установщик и программа удаления (.NET Framework 4.8). |
 
 ## Лицензия
